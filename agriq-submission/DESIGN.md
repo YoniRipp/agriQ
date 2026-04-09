@@ -1,7 +1,5 @@
 # agriQ — Backend Architecture & Risk Logic
 
-**Task 1 — Design Document** | Author: Jonathan (Yoni) Ripp | Facility: Harish 7, Emek Hefer Industrial Park
-
 ---
 
 ## 1. System Architecture
@@ -87,7 +85,9 @@ Grain is one of the best natural insulators known. Research from Iowa State Univ
 
 **Stage 5 — Temporal analysis.** Two parallel tracks: (a) **slow track** — 7-day rolling trend slope. Sustained ~1°C/day rise produces predictive warning, giving operators ~5 days to act. (b) **fast track** — sudden jumps (>5°C or >1.5% moisture in 12h) trigger immediate alert regardless of absolute value.
 
-### Alert Classification
+Each alert carries full context (which stage fired, which sensors, ambient at time, trend) so operators verify *why* before acting.
+
+### Appendix: Alert Classification
 
 | Severity | Triggering condition |
 |---|---|
@@ -96,68 +96,14 @@ Grain is one of the best natural insulators known. Research from Iowa State Univ
 | **Critical** | Any sensor in absolute Critical; OR cluster of 2+ in Warning on rising trend; OR risk score exceeds critical threshold |
 | **Emergency** | ≥5 sensors in Critical; OR entire layer median in Critical; OR fast-track trigger on multiple sensors |
 
-Each alert carries full context (which stage fired, which sensors, ambient at time, trend) so operators verify *why* before acting.
-
 ---
 
-## 3. Tradeoffs & Limitations
-
-### 3.1 Spatial coverage is fundamentally sparse
-
-**Limitation.** ~99% of grain volume is outside any sensor's reliable detection radius. Small hot spots between sensors can grow for weeks before detection.
-
-**Mitigations in design.** Stages 3 and 5 infer from patterns (gradient and trend slope) rather than individual readings, detecting problems in coverage gaps before absolute thresholds fire.
-
-**Further mitigations.** CO₂ sensor per cell (phase 2 hardware); operator-facing coverage indicator in dashboard; periodic manual-inspection reminders.
-
-### 3.2 12-hour reading frequency limits fast response
-
-**Limitation.** Fast-moving events could develop meaningfully between readings.
-
-**Trade-off.** Higher frequency drains sensor batteries proportionally; battery life is the hard constraint for wireless balls buried in grain.
-
-**Mitigation.** Adaptive sampling: when Stage 5 detects rising trends, risk engine commands higher-frequency reads from affected sensors (e.g. every 2h). Battery preserved in steady state, spent when it matters.
-
-### 3.3 Risk engine is rule-based, not learned
-
-**Limitation.** A trained model (e.g., 3D-DenseNet) would outperform hand-tuned rules.
-
-**Trade-off.** ML requires labeled historical data of piles that *did* spoil — agriQ doesn't have that yet. Shipping rules first is the only responsible option.
-
-**Mitigation.** Log everything with full context; `alerts.context` is designed for future ML bootstrap.
-
-### 3.4 Single-region deployment
-
-**Limitation.** Creates a single point of failure.
-
-**Trade-off.** Multi-region adds significant ops complexity and cost; for current scale (tens to hundreds of facilities), outage impact is "alerts delayed by hours" — serious but not catastrophic given grain's thermal inertia.
-
-**Mitigation.** Gateway-level buffering means no data lost during cloud outage; readings queue locally and flush on reconnect. Health-check dashboard flags when any facility hasn't reported in expected window.
-
-### 3.5 Alert fatigue is the silent killer
-
-**Limitation.** If operators get too many alerts or false positives, they stop reading them. Product value collapses.
-
-**Mitigations in design.** Stage 1's health validation prevents faulty sensors from generating noise. Stage 3's gradient analysis suppresses alerts when *everything* drifts together (weather, not a problem). Only four alert severity levels — Info alerts don't wake anyone up. Every alert has an explicit recommended action.
-
----
-
-## 4. Architecture Trade-offs: Technology Choices
+## 3. Technology Choices
 
 ### Why MQTT, not HTTP
 
 Sensor balls are battery-powered and buried in grain. MQTT is the IoT standard: persistent TCP connections are cheaper than HTTPS handshakes, QoS levels 1 and 2 guarantee delivery, and the protocol natively supports offline buffering on the gateway. If the upstream link drops, readings queue locally and flush on reconnect — critical when downtime equals grain spoilage.
 
-**HTTP approach**: Request/response per reading, new HTTPS handshake each time, no local buffering. Data loss during connectivity gaps.  
-**MQTT approach**: Pub/sub with persistent connection, QoS-guaranteed delivery, local queuing. Zero data loss.
-
-For battery-powered sensors in warehouses, MQTT is the only reasonable choice.
-
 ### Why PostgreSQL, not TimescaleDB
 
 At 240 readings/day/facility, plain Postgres with monthly partitioning on `readings` and a compound index on `(sensor_id, recorded_at DESC)` handles years of history comfortably before specialization is needed. Postgres also gives `jsonb` flexibility, strong relational modeling, and a single database to operate. When scale demands it, migrating `readings` to TimescaleDB is a one-command hypertable conversion — we lose nothing by starting simple.
-
-**TimescaleDB upfront**: Better compression, specialized time-series optimizations, but adds operational overhead now. Justified only when you have 10M+ readings/day.  
-**Plain Postgres now**: Simple, battle-tested, sufficient for current and near-future scale. Upgrade path is clear when needed.
-
-Starting simple earns us operational simplicity and team velocity.
