@@ -46,22 +46,11 @@ export default function SensorLayer({
       </div>
 
       {/* Floor plan */}
-      <div className="relative w-full rounded-lg bg-ink-950 border border-ink-700 overflow-hidden" style={{ aspectRatio: '2.5 / 1' }}>
-        {/* Grid overlay for scale */}
-        <svg className="absolute inset-0 w-full h-full opacity-20" preserveAspectRatio="none">
-          <defs>
-            <pattern id={`grid-${layerLabel}`} width="10%" height="20%" patternUnits="userSpaceOnUse">
-              <path d="M 0 0 L 0 100" stroke="#5c6660" strokeWidth="0.5" fill="none" />
-              <path d="M 0 0 L 100 0" stroke="#5c6660" strokeWidth="0.5" fill="none" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill={`url(#grid-${layerLabel})`} />
-        </svg>
-
-        {/* Sensor balls in a 5×2 grid — bottom-left S01, top-right S10 */}
-        <div className="absolute inset-0 grid grid-cols-5 grid-rows-2 p-4 gap-2">
+      <div className="relative w-full rounded-lg bg-ink-950 border border-ink-700 overflow-hidden p-4">
+        {/* Sensor balls in a single row of 10 — bottom-left S01 to top-right S10 */}
+        <div className="flex items-center justify-between gap-2">
           {[...sensors.slice(5), ...sensors.slice(0, 5)].map((s) => (
-            <div key={s.code} className="relative flex items-center justify-center">
+            <div key={s.code} className="relative flex-1 flex items-center justify-center">
               <SensorBall
                 sensor={s}
                 onClick={() => onSensorClick?.(s)}
@@ -69,6 +58,12 @@ export default function SensorLayer({
               />
             </div>
           ))}
+        </div>
+
+        {/* Dimension labels */}
+        <div className="flex justify-between items-end mt-3 text-[9px] text-ink-400 font-mono">
+          <span>← 50m length →</span>
+          <span>25m width</span>
         </div>
       </div>
 
