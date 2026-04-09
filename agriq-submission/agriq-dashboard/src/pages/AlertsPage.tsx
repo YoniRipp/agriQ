@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { alerts } from '../data/mockData';
 import AlertCard from '../components/AlertCard';
 import { Siren, CheckCircle2 } from 'lucide-react';
@@ -12,16 +14,25 @@ const severityRank: Record<Status, number> = {
 };
 
 export default function AlertsPage() {
+  const navigate = useNavigate();
+  const [acknowledgedIds, setAcknowledgedIds] = useState<Set<string>>(new Set());
+
   const sorted = [...alerts].sort((a, b) => {
     const rankDiff = severityRank[a.severity] - severityRank[b.severity];
     if (rankDiff !== 0) return rankDiff;
     return b.triggeredAt.getTime() - a.triggeredAt.getTime();
   });
 
-  const criticalCount = alerts.filter(a => a.severity === 'critical' || a.severity === 'emergency').length;
-  const warningCount = alerts.filter(a => a.severity === 'warning').length;
+  const active = sorted.filter(a => !acknowledgedIds.has(a.id));
+
+  const criticalCount = active.filter(a => a.severity === 'critical' || a.severity === 'emergency').length;
+  const warningCount = active.filter(a => a.severity === 'warning').length;
 
   const hasCritical = criticalCount > 0;
+
+  function acknowledge(id: string) {
+    setAcknowledgedIds(prev => new Set([...prev, id]));
+  }
 
   return (
     <div className="p-6 max-w-[1100px] mx-auto">
@@ -59,16 +70,20 @@ export default function AlertsPage() {
 
       {/* Alert list */}
       <div className="space-y-4">
-        {sorted.length === 0 ? (
+        {active.length === 0 ? (
           <div className="rounded-xl border border-ink-700 bg-ink-900 p-10 text-center">
             <CheckCircle2 className="w-12 h-12 text-ok mx-auto mb-3" />
             <div className="font-bold text-ink-100">No active alerts</div>
             <div className="text-sm text-ink-400 mt-1">All piles are stable.</div>
           </div>
         ) : (
-          sorted.map((alert, i) => (
+          active.map((alert, i) => (
             <div key={alert.id} style={{ animationDelay: `${i * 80}ms` }}>
-              <AlertCard alert={alert} />
+              <AlertCard
+                alert={alert}
+                onAcknowledge={() => acknowledge(alert.id)}
+                onViewPile={() => navigate(`/sites/${alert.pileId}`)}
+              />
             </div>
           ))
         )}
