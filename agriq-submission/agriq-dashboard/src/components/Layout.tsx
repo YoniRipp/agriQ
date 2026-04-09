@@ -1,20 +1,22 @@
 import { NavLink } from 'react-router-dom';
-import { Wheat, LayoutGrid, Siren, MapPin } from 'lucide-react';
+import { Wheat, LayoutGrid, Siren, MapPin, Sun, Moon } from 'lucide-react';
 import { alerts, site } from '../data/mockData';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { theme, toggleTheme } = useTheme();
   const criticalCount = alerts.filter(a => a.severity === 'critical' || a.severity === 'emergency').length;
   const activeCount = alerts.length;
 
   return (
     <div className="min-h-screen flex bg-ink-950">
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 border-r border-ink-700 bg-ink-900 flex flex-col">
+      <aside className="w-64 shrink-0 border-r border-ink-700 bg-ink-900 flex flex-col shadow-sm">
         {/* Brand */}
         <div className="px-6 py-5 border-b border-ink-700">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-ok to-ok/60 flex items-center justify-center shadow-lg shadow-ok/20">
-              <Wheat className="w-5 h-5 text-ink-950" strokeWidth={2.5} />
+              <Wheat className="w-5 h-5 text-white" strokeWidth={2.5} />
             </div>
             <div>
               <div className="font-extrabold text-lg tracking-tight text-ink-100 leading-none">agriQ</div>
@@ -46,9 +48,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-ink-700 text-[10px] text-ink-400 font-mono">
-          <div>v1.0.0 · demo build</div>
-          <div className="mt-1">Last sync: just now</div>
+        <div className="px-4 py-4 border-t border-ink-700 flex items-center justify-between">
+          <div className="text-[10px] text-ink-400 font-mono">
+            <div>v1.0.0 · demo build</div>
+            <div className="mt-0.5">Last sync: just now</div>
+          </div>
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle light/dark mode"
+            className="p-2 rounded-lg border border-ink-700 text-ink-400 hover:text-ink-100 hover:border-ink-500 hover:bg-ink-800 transition"
+          >
+            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          </button>
         </div>
       </aside>
 
@@ -89,7 +101,7 @@ function NavItem({
       {badge !== undefined && badge > 0 && (
         <span
           className={`text-[10px] font-bold px-1.5 py-0.5 rounded min-w-[18px] text-center ${
-            badgeUrgent ? 'bg-crit text-ink-100 pulse-crit' : 'bg-ink-600 text-ink-100'
+            badgeUrgent ? 'bg-crit text-white pulse-crit' : 'bg-ink-700 text-ink-100'
           }`}
         >
           {badge}
