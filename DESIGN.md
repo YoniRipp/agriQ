@@ -51,14 +51,6 @@
                            └───────────────────┘
 ```
 
-### Why MQTT, not HTTP
-
-Sensor balls are battery-powered and buried in grain. MQTT is the IoT standard: persistent TCP connections are cheaper than HTTPS handshakes, QoS levels 1 and 2 guarantee delivery, and the protocol natively supports offline buffering on the gateway. If the upstream link drops, readings queue locally and flush on reconnect — critical when downtime equals grain spoilage.
-
-### Why PostgreSQL, not TimescaleDB
-
-At 240 readings/day/facility, plain Postgres with monthly partitioning on `readings` and a compound index on `(sensor_id, recorded_at DESC)` handles years of history comfortably before specialization is needed. Postgres also gives `jsonb` flexibility, strong relational modeling, and a single database to operate. When scale demands it, migrating `readings` to TimescaleDB is a one-command hypertable conversion — we lose nothing by starting simple.
-
 ### Data Flow: Sensor to Alert
 
 1. Sensor ball publishes every 12h; gateway adds ambient reading.
@@ -147,3 +139,25 @@ Each alert carries full context (which stage fired, which sensors, ambient at ti
 **Limitation.** If operators get too many alerts or false positives, they stop reading them. Product value collapses.
 
 **Mitigations in design.** Stage 1's health validation prevents faulty sensors from generating noise. Stage 3's gradient analysis suppresses alerts when *everything* drifts together (weather, not a problem). Only four alert severity levels — Info alerts don't wake anyone up. Every alert has an explicit recommended action.
+
+---
+
+## 4. Architecture Trade-offs: Technology Choices
+
+### Why MQTT, not HTTP
+
+Sensor balls are battery-powered and buried in grain. MQTT is the IoT standard: persistent TCP connections are cheaper than HTTPS handshakes, QoS levels 1 and 2 guarantee delivery, and the protocol natively supports offline buffering on the gateway. If the upstream link drops, readings queue locally and flush on reconnect — critical when downtime equals grain spoilage.
+
+**HTTP approach**: Request/response per reading, new HTTPS handshake each time, no local buffering. Data loss during connectivity gaps.  
+**MQTT approach**: Pub/sub with persistent connection, QoS-guaranteed delivery, local queuing. Zero data loss.
+
+For battery-powered sensors in warehouses, MQTT is the only reasonable choice.
+
+### Why PostgreSQL, not TimescaleDB
+
+At 240 readings/day/facility, plain Postgres with monthly partitioning on `readings` and a compound index on `(sensor_id, recorded_at DESC)` handles years of history comfortably before specialization is needed. Postgres also gives `jsonb` flexibility, strong relational modeling, and a single database to operate. When scale demands it, migrating `readings` to TimescaleDB is a one-command hypertable conversion — we lose nothing by starting simple.
+
+**TimescaleDB upfront**: Better compression, specialized time-series optimizations, but adds operational overhead now. Justified only when you have 10M+ readings/day.  
+**Plain Postgres now**: Simple, battle-tested, sufficient for current and near-future scale. Upgrade path is clear when needed.
+
+Starting simple earns us operational simplicity and team velocity.
