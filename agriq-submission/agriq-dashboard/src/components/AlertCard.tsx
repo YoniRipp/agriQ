@@ -13,7 +13,15 @@ function timeAgo(date: Date): string {
   return `${days}d ago`;
 }
 
-export default function AlertCard({ alert }: { alert: Alert }) {
+export default function AlertCard({
+  alert,
+  onAcknowledge,
+  onViewPile,
+}: {
+  alert: Alert;
+  onAcknowledge: () => void;
+  onViewPile: () => void;
+}) {
   const colors = statusColor[alert.severity];
   const isCritical = alert.severity === 'critical' || alert.severity === 'emergency';
 
@@ -70,15 +78,21 @@ export default function AlertCard({ alert }: { alert: Alert }) {
         <div className="flex items-center justify-between gap-3 pt-3 border-t border-ink-700">
           <div className="text-[10px] text-ink-400 font-mono">Detected by: {alert.stage}</div>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 rounded-md text-xs font-semibold border border-ink-600 text-ink-200 hover:bg-ink-800 hover:text-ink-100 transition flex items-center gap-1.5">
+            <button
+              onClick={onAcknowledge}
+              className="px-3 py-1.5 rounded-md text-xs font-semibold border border-ink-600 text-ink-200 hover:bg-ink-800 hover:text-ink-100 transition flex items-center gap-1.5"
+            >
               <CheckCircle2 className="w-3 h-3" />
               Acknowledge
             </button>
-            <button className={`px-3 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 ${
-              isCritical
-                ? 'bg-crit text-ink-100 hover:bg-crit/80'
-                : 'bg-ink-700 text-ink-100 hover:bg-ink-600'
-            }`}>
+            <button
+              onClick={onViewPile}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 ${
+                isCritical
+                  ? 'bg-crit text-ink-100 hover:bg-crit/80'
+                  : 'bg-ink-700 text-ink-100 hover:bg-ink-600'
+              }`}
+            >
               View pile
               <ArrowRight className="w-3 h-3" />
             </button>

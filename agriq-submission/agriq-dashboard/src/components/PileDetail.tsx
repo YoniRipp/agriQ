@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { Pile, Sensor } from '../types';
 import SensorLayer from './SensorLayer';
-import ScaleDiagram from './ScaleDiagram';
 import StatusBadge from './StatusBadge';
-import { X, Thermometer, Droplets, Wrench } from 'lucide-react';
+import { X, Thermometer, Droplets, Wrench, AlertTriangle } from 'lucide-react';
+import { sensorStatus, statusColor } from '../lib/risk';
 
 export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () => void }) {
   const [selectedSensor, setSelectedSensor] = useState<Sensor | null>(null);
@@ -36,15 +36,6 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
           <X className="w-4 h-4" />
         </button>
       </div>
-
-      {/* Scale diagram — shows physical size with human for comparison */}
-      <ScaleDiagram
-        length={pile.dimensions.length}
-        width={pile.dimensions.width}
-        height={pile.dimensions.height}
-        tonnage={pile.tonnage}
-        sensorCount={pile.sensors.length}
-      />
 
       {/* Selected sensor detail panel */}
       {selectedSensor && <SensorDetail sensor={selectedSensor} onClose={() => setSelectedSensor(null)} />}
@@ -79,6 +70,9 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
 
 function SensorDetail({ sensor, onClose }: { sensor: Sensor; onClose: () => void }) {
   const isFaulty = sensor.health === 'faulty';
+  const status = sensorStatus(sensor);
+  const colors = statusColor[status];
+  const hasPileIssue = !isFaulty && status !== 'ok';
 
   return (
     <div className="bg-ink-900 border-2 border-ink-600 rounded-xl p-5 fade-up">
@@ -98,36 +92,49 @@ function SensorDetail({ sensor, onClose }: { sensor: Sensor; onClose: () => void
       </div>
 
       {isFaulty ? (
-        <div className="flex items-start gap-3 bg-warn/10 border border-warn/40 rounded-lg p-3">
-          <Wrench className="w-4 h-4 text-warn mt-0.5 shrink-0" />
+        /* Sensor hardware fault — not a pile problem */
+        <div className="flex items-start gap-3 bg-ink-800 border border-ink-600 rounded-lg p-3">
+          <Wrench className="w-4 h-4 text-ink-300 mt-0.5 shrink-0" />
           <div className="text-sm text-ink-200">
-            <div className="font-semibold text-warn mb-1">Faulty sensor — readings excluded</div>
-            {sensor.note ?? 'This sensor has been flagged as faulty and is excluded from risk calculations.'}
+            <div className="font-semibold text-ink-100 mb-1">Sensor hardware fault</div>
+            <div className="text-ink-400 text-xs mb-1">This is a hardware issue, not a pile condition. Readings are excluded from risk calculations.</div>
+            {sensor.note && <div className="text-ink-300 text-xs">{sensor.note}</div>}
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-ink-950 border border-ink-700 rounded-lg p-3">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400 mb-1">
-              <Thermometer className="w-3 h-3" />
-              Temperature
+        <>
+          {/* Pile condition banner if flagged */}
+          {hasPileIssue && (
+            <div className={`flex items-center gap-2 rounded-lg px-3 py-2 mb-3 border ${colors.border} ${colors.bg}`}>
+              <AlertTriangle className={`w-4 h-4 shrink-0 ${colors.text}`} />
+              <span className={`text-xs font-bold uppercase tracking-wider ${colors.text}`}>
+                Pile condition: {status} — this reading indicates a real problem in the grain
+              </span>
             </div>
-            <div className="font-mono text-2xl font-bold text-ink-100">
-              {sensor.tempC}
-              <span className="text-base text-ink-400 ml-0.5">°C</span>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-ink-950 border border-ink-700 rounded-lg p-3">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                <Thermometer className="w-3 h-3" />
+                Temperature
+              </div>
+              <div className="font-mono text-2xl font-bold text-ink-100">
+                {sensor.tempC}
+                <span className="text-base text-ink-400 ml-0.5">°C</span>
+              </div>
+            </div>
+            <div className="bg-ink-950 border border-ink-700 rounded-lg p-3">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                <Droplets className="w-3 h-3" />
+                Moisture
+              </div>
+              <div className="font-mono text-2xl font-bold text-ink-100">
+                {sensor.moisturePct}
+                <span className="text-base text-ink-400 ml-0.5">%</span>
+              </div>
             </div>
           </div>
-          <div className="bg-ink-950 border border-ink-700 rounded-lg p-3">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400 mb-1">
-              <Droplets className="w-3 h-3" />
-              Moisture
-            </div>
-            <div className="font-mono text-2xl font-bold text-ink-100">
-              {sensor.moisturePct}
-              <span className="text-base text-ink-400 ml-0.5">%</span>
-            </div>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );
