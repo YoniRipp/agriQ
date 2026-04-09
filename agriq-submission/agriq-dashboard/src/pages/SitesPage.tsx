@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { site } from '../data/mockData';
 import PileCard from '../components/PileCard';
 import PileDetail from '../components/PileDetail';
+import { MapPin, Layers, ArrowUp } from 'lucide-react';
 
 export default function SitesPage() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function SitesPage() {
   return (
     <div className="p-6 max-w-[1600px] mx-auto">
       {/* Page header */}
-      <header className="mb-6">
+      <header className="mb-4">
         <div className="text-[10px] uppercase tracking-widest text-ink-400 mb-1">Facility overview</div>
         <div className="flex items-end justify-between flex-wrap gap-4">
           <h1 className="text-3xl font-extrabold text-ink-100 tracking-tight">
@@ -29,6 +30,18 @@ export default function SitesPage() {
           </div>
         </div>
       </header>
+
+      {/* Facility info */}
+      <div className="flex items-center gap-4 text-xs text-ink-400 mb-6">
+        <span className="flex items-center gap-1.5">
+          <MapPin className="w-3 h-3" />
+          {site.address}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Layers className="w-3 h-3" />
+          {site.piles.length} piles · 30 sensors each · readings every 12h
+        </span>
+      </div>
 
       {/* Grid of pile cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -50,8 +63,9 @@ export default function SitesPage() {
         <PileDetail pile={selectedPile} onClose={() => navigate('/sites')} />
       ) : (
         <div className="bg-ink-900 border border-dashed border-ink-700 rounded-xl p-8 text-center">
-          <div className="text-sm text-ink-300">
-            Select a pile above to view its sensors and physical dimensions.
+          <ArrowUp className="w-5 h-5 text-ink-500 mx-auto mb-2" />
+          <div className="text-sm text-ink-400">
+            Select a pile above to view its sensors and layer details.
           </div>
         </div>
       )}
