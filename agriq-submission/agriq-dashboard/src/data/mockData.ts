@@ -161,7 +161,7 @@ export const site: Site = {
       dimensions: { length: 50, width: 25, height: 10 },
       sensors: emekWest,
       summary: { tempC: 35, moisturePct: 14.8 },
-      headline: 'Elevated baseline temperature. Cluster in bottom layer (S06–S08) needs attention.',
+      headline: 'Entire pile at elevated baseline (35°C / 14.8%). Additional hot cluster in bottom layer (S06–S08).',
     },
   ],
 };
@@ -221,9 +221,9 @@ export const alerts: Alert[] = [
     pileId: 'emek-west',
     pileName: 'Emek West',
     severity: 'warning',
-    title: 'Elevated baseline — bottom cluster',
+    title: 'Bottom-layer cluster forming',
     detail:
-      'Whole-pile baseline is 35°C / 14.8% — near the warning threshold. A bottom-layer cluster (S06–S08) is reading 39°C / 16.2%, trending upward over the last three readings.',
+      'Whole-pile baseline is 35°C / 14.8% — both metrics in the warning range across all sensors. Additionally, a bottom-layer cluster (S06–S08) is reading 39°C / 16.2%, trending upward over the last three readings.',
     sensorsInvolved: ['S06', 'S07', 'S08'],
     reading: '39°C / 16.2% moisture',
     recommendedAction:

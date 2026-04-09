@@ -40,9 +40,8 @@ The dashboard has two pages, accessible from the left sidebar:
 
 Shows all four piles as cards with current status, temperature, moisture, and a one-line headline written for a human operator. Click a pile to drill down into:
 
-- **A side-profile scale diagram** of the pile with a human silhouette drawn to scale (1.75m next to the 10m-tall pile). This exists to give the operator a visceral sense of how large the cell is and — more importantly — how much grain sits between the 30 sensors. The card below the diagram makes that explicit: with 30 balls in a 12,500 m³ cell, each sensor effectively monitors ~1% of the volume.
-- **Three floor plans** — one per layer (top, middle, bottom) — showing the 10 sensor balls of that layer on a 50 × 25 m grid. Sensors are color-coded by status. Click any sensor for its exact reading.
-- **Sensor S28 in Emek East is intentionally faulty** (gray with a wrench icon). It's excluded from the pile risk score and gets its own maintenance alert on the Alerts page — which is the correct way to handle the "erratic readings, possible faulty sensor" edge case from the spec.
+- **Three floor plans** — one per layer (top, middle, bottom) — showing the 10 sensor balls of that layer on a 50 × 25 m grid with explicit height ranges (0–3.3m, 3.3–6.7m, 6.7–10m). Sensors are color-coded by status. Click any sensor for its exact reading.
+- **Faulty vs pile condition distinction** — Sensor S28 in Emek East is intentionally faulty (gray with a wrench icon). It's excluded from the pile risk score and gets its own maintenance alert — which is the correct way to handle the "erratic readings, possible faulty sensor" edge case from the spec. Orange sensors indicate a real pile condition, gray sensors indicate hardware issues.
 
 ### 2. Alerts (`/alerts`)
 
@@ -61,7 +60,7 @@ Each alert also shows which stage of the risk engine detected it (Stage 1 health
 
 ### Aesthetic: industrial control room
 
-A dark theme with high-contrast status colors (green/amber/red) and a subtle grid background. Typography: **Manrope** for UI, **JetBrains Mono** for numeric readings. This isn't a consumer app — it's a tool that someone glances at under warehouse lighting while deciding whether to dispatch a technician. The visual language is closer to Bloomberg terminal than Linear.
+Clean, professional design with a **light/dark mode toggle** (defaults to light). High-contrast status colors (green/amber/red) and a subtle grid background work in both modes. Typography: **Manrope** for UI, **JetBrains Mono** for numeric readings. Status badges include icons (✓/△/✕) for color-blind accessibility. This isn't a consumer app — it's a tool that someone glances at under warehouse lighting while deciding whether to dispatch a technician.
 
 ### Human-first copy
 
@@ -71,10 +70,6 @@ Every headline, every alert title, and every recommended action is written the w
 - ✅ `Fire risk in middle layer — five sensors at 51°C / 18.4% moisture. Dispatch a technician immediately.`
 
 This is the single most important thing about designing for non-technical users, and it matters more than any framework choice.
-
-### Honest coverage communication
-
-The scale diagram and its accompanying text do not hide the fact that the system cannot see everything inside the pile. Grain is an extreme thermal insulator — that's documented in the design doc — and a system that oversells its coverage will be distrusted the first time it's wrong. Telling the operator up front what the system can and cannot see builds the trust the product needs.
 
 ### Consistency with the design document
 
@@ -97,10 +92,9 @@ agriq-dashboard/
 │   │   └── risk.ts               # status classifier + color mapping
 │   ├── components/
 │   │   ├── Layout.tsx            # sidebar + main
-│   │   ├── StatusBadge.tsx       # reusable status pill
+│   │   ├── StatusBadge.tsx       # reusable status pill with icon
 │   │   ├── PileCard.tsx          # summary card on Sites page
 │   │   ├── PileDetail.tsx        # drilldown view
-│   │   ├── ScaleDiagram.tsx      # 50×25×10m visual with human for scale
 │   │   ├── SensorLayer.tsx       # one layer's floor plan with 10 sensor balls
 │   │   └── AlertCard.tsx         # big actionable alert card
 │   └── pages/
