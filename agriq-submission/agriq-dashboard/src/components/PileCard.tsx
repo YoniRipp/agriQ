@@ -1,4 +1,4 @@
-import { Thermometer, Droplets, ChevronRight, Activity } from 'lucide-react';
+import { ChevronRight, Activity } from 'lucide-react';
 import type { Pile } from '../types';
 import { statusColor } from '../lib/risk';
 import StatusBadge from './StatusBadge';
@@ -12,13 +12,8 @@ interface Props {
 export default function PileCard({ pile, isSelected, onClick }: Props) {
   const colors = statusColor[pile.status];
 
-  // A "problem sensor" is one reading meaningfully above the pile's own baseline.
-  // We use a delta-based check (rather than the absolute spec thresholds) because
-  // this is the number an operator actually wants: how many sensors are pulling
-  // this pile's risk score up. A baseline-warm pile shouldn't show every sensor
-  // as flagged just because it's warm overall.
-  const TEMP_DELTA = 3;     // °C above baseline
-  const MOIST_DELTA = 1.0;  // % above baseline
+  const TEMP_DELTA = 3;
+  const MOIST_DELTA = 1.0;
   const problemCount = pile.sensors.filter(s => {
     if (s.health === 'faulty') return true;
     return (
@@ -39,55 +34,34 @@ export default function PileCard({ pile, isSelected, onClick }: Props) {
       {/* Status stripe */}
       <div className={`h-1.5 rounded-t-[10px] ${colors.dot}`} />
 
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] uppercase tracking-widest text-ink-400 mb-1">Pile</div>
-            <h3 className="text-xl font-extrabold text-ink-100 tracking-tight truncate">{pile.name}</h3>
-            <div className="text-xs text-ink-400 mt-0.5">
-              {pile.grainType} · {pile.tonnage.toLocaleString()} tonnes
-            </div>
-          </div>
-          <div className="shrink-0">
-            <StatusBadge status={pile.status} size="sm" />
-          </div>
+      <div className="p-4">
+        {/* Name + status */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <h3 className="text-lg font-extrabold text-ink-100 tracking-tight truncate">{pile.name}</h3>
+          <StatusBadge status={pile.status} size="sm" />
         </div>
 
-        {/* Headline */}
-        <p className="text-sm text-ink-200 leading-snug mb-4 min-h-[2.5rem]">{pile.headline}</p>
-
-        {/* Readings */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-ink-950/60 border border-ink-700 rounded-lg p-3">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400 mb-1">
-              <Thermometer className="w-3 h-3" />
-              Temperature
-            </div>
-            <div className="font-mono text-xl font-bold text-ink-100">
-              {pile.summary.tempC}
-              <span className="text-sm text-ink-400 ml-0.5">°C</span>
-            </div>
-          </div>
-          <div className="bg-ink-950/60 border border-ink-700 rounded-lg p-3">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400 mb-1">
-              <Droplets className="w-3 h-3" />
-              Moisture
-            </div>
-            <div className="font-mono text-xl font-bold text-ink-100">
-              {pile.summary.moisturePct}
-              <span className="text-sm text-ink-400 ml-0.5">%</span>
-            </div>
-          </div>
+        {/* Grain info */}
+        <div className="text-xs text-ink-400 mb-3">
+          {pile.grainType} · {pile.tonnage.toLocaleString()} tonnes
         </div>
 
-        {/* Footer meta */}
+        {/* Readings — inline */}
+        <div className="font-mono text-lg font-bold text-ink-100 mb-3">
+          {pile.summary.tempC}°C
+          <span className="text-ink-500 mx-1.5">/</span>
+          {pile.summary.moisturePct}%
+          <span className="text-xs font-normal text-ink-400 ml-1.5">moisture</span>
+        </div>
+
+        {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-ink-700">
           <div className="flex items-center gap-1.5 text-xs text-ink-300">
             <Activity className="w-3 h-3" />
             <span>
-              <span className="font-semibold text-ink-100">{problemCount}</span>
+              <span className={`font-semibold ${problemCount > 0 ? colors.text : 'text-ink-100'}`}>{problemCount}</span>
               {' / '}
-              <span>{pile.sensors.length}</span> problem sensors
+              {pile.sensors.length} flagged
             </span>
           </div>
           <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'rotate-90 text-ink-100' : 'text-ink-400'}`} />

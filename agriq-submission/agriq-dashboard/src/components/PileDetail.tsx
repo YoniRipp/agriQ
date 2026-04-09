@@ -20,22 +20,40 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
   return (
     <div className="fade-up space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between bg-ink-900 border border-ink-700 rounded-xl p-5">
-        <div>
-          <div className="text-[10px] uppercase tracking-widest text-ink-400 mb-1">Pile detail</div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-extrabold text-ink-100 tracking-tight">{pile.name}</h2>
-            <StatusBadge status={pile.status} />
+      <div className="bg-ink-900 border border-ink-700 rounded-xl p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-ink-400 mb-1">Pile detail</div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-extrabold text-ink-100 tracking-tight">{pile.name}</h2>
+              <StatusBadge status={pile.status} />
+            </div>
+            <p className="text-sm text-ink-200 mt-2 max-w-2xl">{pile.headline}</p>
           </div>
-          <p className="text-sm text-ink-200 mt-2 max-w-2xl">{pile.headline}</p>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg border border-ink-700 text-ink-300 hover:text-ink-100 hover:border-ink-500 transition"
+            aria-label="Close detail"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 rounded-lg border border-ink-700 text-ink-300 hover:text-ink-100 hover:border-ink-500 transition"
-          aria-label="Close detail"
-        >
-          <X className="w-4 h-4" />
-        </button>
+
+        {/* Readings + meta row */}
+        <div className="flex items-center gap-6 pt-4 border-t border-ink-700">
+          <div className="flex items-center gap-2">
+            <Thermometer className="w-4 h-4 text-ink-400" />
+            <span className="font-mono text-xl font-bold text-ink-100">{pile.summary.tempC}°C</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Droplets className="w-4 h-4 text-ink-400" />
+            <span className="font-mono text-xl font-bold text-ink-100">{pile.summary.moisturePct}%</span>
+            <span className="text-xs text-ink-400">moisture</span>
+          </div>
+          <div className="text-xs text-ink-400 ml-auto">
+            {pile.grainType} · {pile.tonnage.toLocaleString()} tonnes · {pile.dimensions.length}m × {pile.dimensions.width}m × {pile.dimensions.height}m
+          </div>
+        </div>
       </div>
 
       {/* Layer profile — shows the 3D structure of the pile */}
