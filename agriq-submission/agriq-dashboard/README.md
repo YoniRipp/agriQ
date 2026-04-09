@@ -88,6 +88,8 @@ agriq-dashboard/
 │   ├── types.ts                  # Pile, Sensor, Alert, Status
 │   ├── data/
 │   │   └── mockData.ts           # hardcoded facility + generated sensors
+│   ├── context/
+│   │   └── ThemeContext.tsx      # light/dark mode provider
 │   ├── lib/
 │   │   └── risk.ts               # status classifier + color mapping
 │   ├── components/
