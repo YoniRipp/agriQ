@@ -156,7 +156,7 @@ function SensorBall({
       className={`relative group rounded-full w-9 h-9 flex items-center justify-center font-mono text-[10px] font-bold border-2 transition-transform hover:scale-110 focus:outline-none ${
         isFaulty
           ? 'bg-ink-600 border-ink-400 text-ink-200'
-          : `${colors.dot} ${colors.glow} border-ink-100/20 text-ink-950`
+          : `${colors.dot} ${colors.glow} border-black/10 text-gray-900`
       } ${isSelected ? 'scale-110 ring-2 ring-ink-100 ring-offset-2 ring-offset-ink-950' : ''}`}
       aria-label={`Sensor ${sensor.code}: ${tooltipLabel}`}
     >
