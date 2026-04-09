@@ -6,6 +6,7 @@ interface Props {
   layerLabel: string;
   layerSubtitle: string;
   sensors: Sensor[];
+  heightRange?: string; // e.g., "6.7–10m"
   onSensorClick?: (sensor: Sensor) => void;
   selectedSensorCode?: string;
 }
@@ -21,6 +22,7 @@ export default function SensorLayer({
   layerLabel,
   layerSubtitle,
   sensors,
+  heightRange,
   onSensorClick,
   selectedSensorCode,
 }: Props) {
@@ -33,8 +35,14 @@ export default function SensorLayer({
         <div>
           <div className="text-[10px] uppercase tracking-widest text-ink-400">{layerSubtitle}</div>
           <h4 className="text-base font-bold text-ink-100">{layerLabel}</h4>
+          {heightRange && (
+            <div className="text-[9px] text-ink-400 mt-0.5 font-mono">Height: {heightRange}</div>
+          )}
         </div>
-        <LayerSummary sensors={sensors} />
+        <div className="flex flex-col items-end gap-2">
+          <LayerSummary sensors={sensors} />
+          <div className="text-[9px] text-ink-500 font-mono">Floor: 50m × 25m</div>
+        </div>
       </div>
 
       {/* Floor plan */}

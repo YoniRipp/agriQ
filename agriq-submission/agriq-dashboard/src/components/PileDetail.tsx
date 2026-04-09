@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Pile, Sensor } from '../types';
 import SensorLayer from './SensorLayer';
+import PileLayerProfile from './PileLayerProfile';
 import StatusBadge from './StatusBadge';
 import { X, Thermometer, Droplets, Wrench, AlertTriangle } from 'lucide-react';
 import { sensorStatus, statusColor } from '../lib/risk';
@@ -37,14 +38,18 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
         </button>
       </div>
 
+      {/* Layer profile — shows the 3D structure of the pile */}
+      <PileLayerProfile />
+
       {/* Selected sensor detail panel */}
       {selectedSensor && <SensorDetail sensor={selectedSensor} onClose={() => setSelectedSensor(null)} />}
 
-      {/* Three layers — top first (the operator looks down into the pile) */}
+      {/* Three layers — shown with explicit height ranges and dimensions */}
       <div className="space-y-4">
         <SensorLayer
           layerLabel="Top layer"
           layerSubtitle="S21 – S30"
+          heightRange="6.7–10m"
           sensors={top}
           onSensorClick={handleSensorClick}
           selectedSensorCode={selectedSensor?.code}
@@ -52,6 +57,7 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
         <SensorLayer
           layerLabel="Middle layer"
           layerSubtitle="S11 – S20"
+          heightRange="3.3–6.7m"
           sensors={middle}
           onSensorClick={handleSensorClick}
           selectedSensorCode={selectedSensor?.code}
@@ -59,6 +65,7 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
         <SensorLayer
           layerLabel="Bottom layer"
           layerSubtitle="S01 – S10"
+          heightRange="0–3.3m"
           sensors={bottom}
           onSensorClick={handleSensorClick}
           selectedSensorCode={selectedSensor?.code}
