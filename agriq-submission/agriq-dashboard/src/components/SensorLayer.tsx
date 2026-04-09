@@ -60,8 +60,11 @@ export default function SensorLayer({
         </div>
 
         {/* Sensor balls positioned in a 5×2 grid */}
+        {/* Reorder so bottom-left is sensor 1 and top-right is sensor 10:
+            Bottom row: sensors 0-4 (S01-S05, S11-S15, S21-S25)
+            Top row: sensors 5-9 (S06-S10, S16-S20, S26-S30) */}
         <div className="absolute inset-0 grid grid-cols-5 grid-rows-2 p-4 gap-2">
-          {sensors.map((s) => (
+          {[...sensors.slice(5), ...sensors.slice(0, 5)].map((s) => (
             <div key={s.code} className="relative flex items-center justify-center">
               <SensorBall
                 sensor={s}
