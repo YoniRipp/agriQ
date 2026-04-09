@@ -8,7 +8,7 @@ import type { Site, Sensor, Layer, Alert } from '../types';
  *   Emek South — Warning — most 28°C / 13.2% — S01-S04 bottom: 44°C / 16.1%
  *   Emek East  — Critical — most 26°C / 13.0% — S11-S15 middle: 51°C / 18.4%,
  *                                                S28 top: erratic (faulty)
- *   Emek West  — Warning — most 25°C / 12.8% — S06-S08 bottom: 39°C / 16.2%
+ *   Emek West  — Warning — most 35°C / 14.8% — S06-S08 bottom: 39°C / 16.2%
  *
  * Each pile has 30 sensors: S01-S10 bottom, S11-S20 middle, S21-S30 top.
  * This data-generation function fills in every sensor according to the spec
@@ -107,8 +107,8 @@ const emekEast = buildSensors({
 }, 3);
 
 const emekWest = buildSensors({
-  baseTemp: 25,
-  baseMoisture: 12.8,
+  baseTemp: 35,
+  baseMoisture: 14.8,
   problems: [
     { indices: [5, 6, 7], temp: 39, moisture: 16.2 }, // S06-S08
   ],
@@ -160,8 +160,8 @@ export const site: Site = {
       tonnage: 3000,
       dimensions: { length: 50, width: 25, height: 10 },
       sensors: emekWest,
-      summary: { tempC: 25, moisturePct: 12.8 },
-      headline: 'Baseline is stable. Hot cluster in bottom layer (S06–S08) forming — monitor closely.',
+      summary: { tempC: 35, moisturePct: 14.8 },
+      headline: 'Entire pile at elevated baseline (35°C / 14.8%). Additional hot cluster in bottom layer (S06–S08).',
     },
   ],
 };
@@ -223,12 +223,12 @@ export const alerts: Alert[] = [
     severity: 'warning',
     title: 'Bottom-layer cluster forming',
     detail:
-      'Whole-pile baseline is stable at 25°C / 12.8%. However, a bottom-layer cluster (S06–S08) is reading 39°C / 16.2% with 16.2% moisture — both in the warning range. This cluster is trending upward over the last three readings.',
+      'Whole-pile baseline is 35°C / 14.8% — both metrics in the warning range across all sensors. Additionally, a bottom-layer cluster (S06–S08) is reading 39°C / 16.2%, trending upward over the last three readings.',
     sensorsInvolved: ['S06', 'S07', 'S08'],
     reading: '39°C / 16.2% moisture',
     recommendedAction:
-      'Increase inspection frequency to every 8 hours. Check aeration and ambient conditions. If trend continues, consider localized cooling or pile rotation.',
+      'Check ambient conditions and aeration. Verify the weather forecast — if a heatwave is incoming, plan to move this pile to cooler storage if possible.',
     triggeredAt: hoursAgo(18),
-    stage: 'Stage 3 (cluster) + Stage 4 (combined risk score)',
+    stage: 'Stage 3 (cluster) + Stage 5 (rising trend)',
   },
 ];

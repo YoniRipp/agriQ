@@ -42,7 +42,7 @@ npm run dev
 
 The dashboard has two pages:
 
-- **Sites & Piles** — overview of all four wheat piles with status, readings, and a drilldown to a per-pile detail view that includes a side-profile scale diagram (with a human silhouette at 1.75m for real-world reference), the coverage reality check, and three layers of sensor balls with interactive tooltips.
+- **Sites & Piles** — overview of all four wheat piles with status, temperature, moisture, and a drilldown to a per-pile detail view showing three layers of sensor balls with interactive tooltips. Faulty sensors are visually distinct from real pile conditions.
 - **Alerts** — sorted by severity, each card answers the four questions an operator actually has: which pile, which sensors, what the reading is, and what to do next. Each alert is also traceable to the specific stage of the risk engine that detected it.
 
 Built with React 19, TypeScript, Vite 6, Tailwind CSS, and React Router 7.
