@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { Pile, Sensor } from '../types';
 import SensorLayer from './SensorLayer';
-import PileLayerProfile from './PileLayerProfile';
 import StatusBadge from './StatusBadge';
 import { X, Thermometer, Droplets, Wrench, AlertTriangle } from 'lucide-react';
 import { sensorStatus, statusColor } from '../lib/risk';
@@ -55,9 +54,6 @@ export default function PileDetail({ pile, onClose }: { pile: Pile; onClose: () 
           </div>
         </div>
       </div>
-
-      {/* Layer profile — shows the 3D structure of the pile */}
-      <PileLayerProfile />
 
       {/* Selected sensor detail panel */}
       {selectedSensor && <SensorDetail sensor={selectedSensor} onClose={() => setSelectedSensor(null)} />}
